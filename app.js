@@ -8,8 +8,8 @@ import config from './config';
 
 // routes
 import authRoutes from './routes/api/auth';
-import itemRoutes from './routes/api/items';
-import userRoutes from './routes/api/users';
+import registrationRoutes from './routes/api/registrations';
+import { createIntialAdmin } from './helpers/initiateDb';
 
 const { MONGO_URI, MONGO_DB_NAME } = config;
 
@@ -28,16 +28,20 @@ const db = `${MONGO_URI}/${MONGO_DB_NAME}`;
 // Connect to Mongo
 mongoose
   .connect(db, {
+    user: MONGO_DB_NAME,
+    pass: MONGO_DB_NAME,
     useNewUrlParser: true,
-    useCreateIndex: true,
     useUnifiedTopology: true
-  }) // Adding new mongo url parser
-  .then(() => console.log('MongoDB Connected...'))
+  })
+  .then(async () => {
+    console.log('MongoDB Connected...')
+    // Adding new user
+    await createIntialAdmin()
+  })
   .catch(err => console.log(err));
 
 // Use Routes
-app.use('/api/items', itemRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/registrations', registrationRoutes);
 app.use('/api/auth', authRoutes);
 
 // Serve static assets if in production
